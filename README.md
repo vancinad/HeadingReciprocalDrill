@@ -1,0 +1,3 @@
+Experimenting with Jetpack Compose...
+A simple drill for recalling runway reciprocal headings.
+Given a runway heading (e.g. 12, aka 120 degrees magnetic) enter the reciprocal runway heading (e.g. 30, aka 300 degrees)
