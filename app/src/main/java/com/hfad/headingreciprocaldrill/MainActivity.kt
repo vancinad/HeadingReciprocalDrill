@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.isDigitsOnly
@@ -69,6 +71,12 @@ fun HdgRecipControls(hdg: String, recip: String, modifier: Modifier) {
     var recipHdg by rememberSaveable { mutableStateOf(recip) }
     val context = LocalContext.current
 
+    fun correctAnswerReset() {
+        Log.d("correctAnswerReset", "called")
+        inputHdg = newHeading()
+        recipHdg = ""
+    }
+
     Column {
 
         TextField(
@@ -81,22 +89,25 @@ fun HdgRecipControls(hdg: String, recip: String, modifier: Modifier) {
         TextField(
             value=recipHdg,
             label = {Text(text = "Reciprocal:", modifier = modifier)},
-            onValueChange = { if (it.isDigitsOnly()) recipHdg = it },
+            onValueChange = {
+                Log.v("onValueChange", "CALLED")
+                if (it.isDigitsOnly()) recipHdg = it
+            },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            keyboardActions = KeyboardActions(onSend = {
-                if (checkAnswer(inputHdg, recipHdg)) { // todo Find a way to factor onSend/onClick action
-                    inputHdg = newHeading()
-                    recipHdg = ""
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Go),
+            keyboardActions = KeyboardActions(
+                onGo = {
+                    if (checkAnswer(inputHdg, recipHdg)) {
+                        correctAnswerReset()
+                    }
                 }
-            })
+            ),
         )
 
         Button(
             onClick = {
                 if (checkAnswer(inputHdg, recipHdg)) {
-                    inputHdg = newHeading()
-                    recipHdg = ""
+                    correctAnswerReset()
                 }
                 else {
                     val soundPool = SoundPool.Builder()
