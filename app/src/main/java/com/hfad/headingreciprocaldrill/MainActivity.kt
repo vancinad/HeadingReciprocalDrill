@@ -1,5 +1,9 @@
 package com.hfad.headingreciprocaldrill
 
+import android.content.Context
+import android.media.AudioManager
+import android.media.SoundPool
+import android.media.ToneGenerator
 import android.os.Bundle
 import android.util.Log
 import android.widget.LinearLayout
@@ -25,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.isDigitsOnly
@@ -34,6 +39,7 @@ import java.util.Random
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val am : AudioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         enableEdgeToEdge()
         setContent {
             HeadingReciprocalDrillTheme {
@@ -61,6 +67,7 @@ fun HdgRecipDrill(modifier: Modifier = Modifier, hdg: String = newHeading(), rec
 fun HdgRecipControls(hdg: String, recip: String, modifier: Modifier) {
     var inputHdg by rememberSaveable { mutableStateOf(hdg) }
     var recipHdg by rememberSaveable { mutableStateOf(recip) }
+    val context = LocalContext.current
 
     Column {
 
@@ -90,6 +97,13 @@ fun HdgRecipControls(hdg: String, recip: String, modifier: Modifier) {
                 if (checkAnswer(inputHdg, recipHdg)) {
                     inputHdg = newHeading()
                     recipHdg = ""
+                }
+                else {
+                    val soundPool = SoundPool.Builder()
+                    soundPool.setContext(context)
+                    //soundPool.load //TODO: figure out how to reference /raw resources
+                    val toneGen = ToneGenerator(AudioManager.STREAM_SYSTEM, 50) // TODO: get proper volume level
+                    toneGen.startTone(ToneGenerator.TONE_DTMF_0, 500)
                 }
             }
         ) {
